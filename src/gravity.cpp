@@ -1,5 +1,6 @@
 #include <gravity.h>
 #include <SDL2/SDL_image.h>
+#include <sstream>
 
 GameWindow::GameWindow(std::string gameName, int width, int height) {
     if( SDL_Init(SDL_INIT_VIDEO) > 0 ) {
@@ -23,9 +24,9 @@ GameWindow::GameWindow(std::string gameName, int width, int height) {
     }
 }
 
-void GameWindow::addObject( std::string path, int width, int height ) {
+void GameWindow::addObject( std::string path, int spriteSize, int width, int height ) {
     printf("Loading object");
-    RenderObject* obj = new RenderObject( path, this->renderer, width, height );
+    RenderObject* obj = new RenderObject( path, spriteSize, this->renderer, width, height );
     this->screenObjects.push_back(obj);
 }
 
@@ -40,24 +41,32 @@ void GameWindow::update() {
     }
 }
 
-RenderObject::RenderObject( std::string path, SDL_Renderer* renderer, int width, int height ) {
+RenderObject::RenderObject( std::string path, int spriteSize, SDL_Renderer* renderer, int width, int height ) {
     this->renderer = renderer;
     this->width = width;
     this->height = height;
-    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if(loadedSurface == NULL) {
-        printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
-        this->success = false;
-    } else {
-        this->texture = SDL_CreateTextureFromSurface(  this->renderer,  loadedSurface );
-        if(this->texture == NULL) {
-            printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+    this->spriteSize = spriteSize;
+    for(int i = 0; i < spriteSize; i++) {
+        std::stringstream ss;
+        ss << path << "__00" << i << ".png";
+        std::string richPath = ss.str();
+        SDL_Surface* loadedSurface = IMG_Load( richPath.c_str() );
+        if(loadedSurface == NULL) {
+            printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
             this->success = false;
+        } else {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(  this->renderer,  loadedSurface );
+            if(texture == NULL) {
+                printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+                this->success = false;
+            }
+            this->texture.push_back(texture);
+            SDL_FreeSurface(loadedSurface);
+            this->success = true;
+            printf("Image loaded with success! %s", path.c_str());
         }
-        SDL_FreeSurface(loadedSurface);
-        this->success = true;
-        printf("Image loaded with success! %s", path.c_str());
     }
+
 }
 
 void RenderObject::render( int x, int y, SDL_Rect* clip ) {
@@ -69,19 +78,24 @@ void RenderObject::render( int x, int y, SDL_Rect* clip ) {
         renderQuad.w = clip->w;
         renderQuad.h = clip->h;
     }
+
+    if(this->count % 5 == 0) {
+        this->imgNum++;
+    }
+
+    if(this->imgNum == 10) {
+        this->imgNum = 0;
+        this->count = 0;
+    }
+
+
     // clip is related to the image source
     // renderQuad where the image will be loaded on the screen
-    SDL_RenderCopy ( this->renderer, this->texture, clip, &renderQuad );
+    SDL_RenderCopy ( this->renderer, this->texture[this->imgNum], clip, &renderQuad );
+
+    this->count++;
 }
 
 SDL_Rect RenderObject::updateClip() {
-    if(clipCount == 0) {
-        SDL_Delay(1000);
-    }
-    ++clipCount;
-    if(clipCount > 16) { 
-        clipCount = 0;
-    }
-
-    return { clipCount * 40, 0, 55, 52 };
+    return {  0, 0, 500, 500 };
 }

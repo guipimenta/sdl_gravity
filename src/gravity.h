@@ -9,18 +9,19 @@
 class RenderObject {
 
     public:
-        RenderObject( std::string path, SDL_Renderer* renderer, int width, int height  );
+        RenderObject( std::string path, int spriteSize, SDL_Renderer* renderer, int width, int height  );
         void render( int x, int y, SDL_Rect* clip );
         SDL_Rect updateClip();
     private:
         void loadTexture( std::string path );
         SDL_Renderer* renderer = NULL;
-        SDL_Texture* texture = NULL;
+        std::vector<SDL_Texture*> texture;
         bool success;
         int height;
         int width;
-        int clipCount = 0;
-        int currentClip = 0;
+        int spriteSize;
+        int imgNum;
+        int count;
 
 };
 
@@ -29,7 +30,7 @@ class GameWindow {
     public:
         GameWindow( std::string gameName, int width, int height );
 
-        void addObject( std::string path, int width, int height );
+        void addObject( std::string path, int spriteSize, int width, int height );
 
         void update();
         
