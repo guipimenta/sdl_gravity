@@ -12,6 +12,7 @@ class RenderObject {
         RenderObject( std::string path, int spriteSize, SDL_Renderer* renderer, int width, int height  );
         void render( int x, int y, SDL_Rect* clip );
         SDL_Rect updateClip();
+        void processInput(SDL_Event e);
     private:
         void loadTexture( std::string path );
         SDL_Renderer* renderer = NULL;
@@ -22,7 +23,9 @@ class RenderObject {
         int spriteSize;
         int imgNum = 0;
         int count = 0;
-
+        int x;
+        int y;
+        bool animate;
 };
 
 
@@ -32,7 +35,7 @@ class GameWindow {
 
         void addObject( std::string path, int spriteSize, int width, int height );
 
-        void update();
+        void update(SDL_Event e);
         
     private:
 

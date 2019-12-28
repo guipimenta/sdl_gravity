@@ -29,11 +29,12 @@ void GameWindow::addObject( std::string path, int spriteSize, int width, int hei
     this->screenObjects.push_back(obj);
 }
 
-void GameWindow::update() {
+void GameWindow::update(SDL_Event e) {
     SDL_RenderClear( this->renderer );
     for(int i = 0; i < this->screenObjects.size(); i++) {
         RenderObject* obj = this->screenObjects[i];
-        obj->updateClip();
+        obj->processInput(e);
+        
         SDL_Rect clip = obj->updateClip();
         obj->render( 0, 0, &clip );
         SDL_RenderPresent( this->renderer );
@@ -78,14 +79,20 @@ void RenderObject::render( int x, int y, SDL_Rect* clip ) {
         renderQuad.h = clip->h;
     }
 
-    if(this->count % 4 == 0) {
-        this->imgNum++;
+    if(animate) {
+        if(this->count % 4 == 0) {
+            this->imgNum++;
+        }
+
+        if(this->imgNum == 10) {
+            this->imgNum = 0;
+            this->count = 0;
+            this->animate = false;
+        }
+    } else {
+        this->imgNum = 0;
     }
 
-    if(this->imgNum == 10) {
-        this->imgNum = 0;
-        this->count = 0;
-    }
 
     // printf("Loading clip %d\n", this->imgNum);
 
@@ -99,4 +106,25 @@ void RenderObject::render( int x, int y, SDL_Rect* clip ) {
 
 SDL_Rect RenderObject::updateClip() {
     return {  0, 0, 500, 500 };
+}
+
+void RenderObject::processInput(SDL_Event e) {
+    if(e.type == SDL_KEYDOWN) {
+        switch(e.key.keysym.sym) {
+            case SDLK_RIGHT:
+                x++;
+                if(x == 600) {
+                    x = 0;
+                }
+                animate = true;
+            case SDLK_LEFT:
+                x--;
+                if(x == 0) {
+                    x = 600;
+                }
+                animate = true;
+            break;
+        }
+        
+    }
 }
