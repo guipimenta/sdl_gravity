@@ -20,8 +20,8 @@ class RenderObject {
         int height;
         int width;
         int spriteSize;
-        int imgNum;
-        int count;
+        int imgNum = 0;
+        int count = 0;
 
 };
 

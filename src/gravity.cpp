@@ -25,7 +25,6 @@ GameWindow::GameWindow(std::string gameName, int width, int height) {
 }
 
 void GameWindow::addObject( std::string path, int spriteSize, int width, int height ) {
-    printf("Loading object");
     RenderObject* obj = new RenderObject( path, spriteSize, this->renderer, width, height );
     this->screenObjects.push_back(obj);
 }
@@ -63,7 +62,7 @@ RenderObject::RenderObject( std::string path, int spriteSize, SDL_Renderer* rend
             this->texture.push_back(texture);
             SDL_FreeSurface(loadedSurface);
             this->success = true;
-            printf("Image loaded with success! %s", path.c_str());
+            printf("Image loaded with success! %s\n", path.c_str());
         }
     }
 
@@ -79,7 +78,7 @@ void RenderObject::render( int x, int y, SDL_Rect* clip ) {
         renderQuad.h = clip->h;
     }
 
-    if(this->count % 5 == 0) {
+    if(this->count % 4 == 0) {
         this->imgNum++;
     }
 
@@ -87,6 +86,8 @@ void RenderObject::render( int x, int y, SDL_Rect* clip ) {
         this->imgNum = 0;
         this->count = 0;
     }
+
+    // printf("Loading clip %d\n", this->imgNum);
 
 
     // clip is related to the image source
