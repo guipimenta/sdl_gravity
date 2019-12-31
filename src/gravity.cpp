@@ -2,6 +2,17 @@
 #include <SDL2/SDL_image.h>
 #include <sstream>
 
+
+/* SDL interprets each pixel as a 32-bit number, so our masks must depend
+   on the endianness (byte order) of the machine */
+
+Uint32 rmask = 0xff000000;
+Uint32 gmask = 0x00ff0000;
+Uint32 bmask = 0x0000ff00;
+Uint32 amask = 0x000000ff;
+
+
+
 GameWindow::GameWindow(std::string gameName, int width, int height) {
     if( SDL_Init(SDL_INIT_VIDEO) > 0 ) {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
@@ -13,6 +24,7 @@ GameWindow::GameWindow(std::string gameName, int width, int height) {
             printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
             this->windowState = false;
         } else {
+            
             this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED  | SDL_RENDERER_PRESENTVSYNC );
             if(this->renderer == NULL) {
                 printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -55,13 +67,18 @@ RenderObject::RenderObject( std::string path, int spriteSize, SDL_Renderer* rend
             printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
             this->success = false;
         } else {
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(  this->renderer,  loadedSurface );
+            SDL_Rect scale = { 0, 0, 60, 60 };
+            SDL_Surface *blitedSurface = SDL_CreateRGBSurface(0, 640, 480, 32, rmask, gmask, bmask, amask);
+
+            SDL_BlitScaled ( loadedSurface, NULL, blitedSurface, &scale  );
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(  this->renderer,  blitedSurface );
             if(texture == NULL) {
                 printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
                 this->success = false;
             }
             this->texture.push_back(texture);
             SDL_FreeSurface(loadedSurface);
+            SDL_FreeSurface(blitedSurface);
             this->success = true;
             printf("Image loaded with success! %s\n", path.c_str());
         }
@@ -71,7 +88,7 @@ RenderObject::RenderObject( std::string path, int spriteSize, SDL_Renderer* rend
 
 void RenderObject::render( int x, int y, SDL_Rect* clip ) {
     // set rendering space and render to screen
-    SDL_Rect renderQuad = { x, y, this->width, this->height };
+    SDL_Rect renderQuad = { this->x, this->y, this->width, this->height };
 
     // set clip rendering dimensions
     if( clip != NULL ) {
@@ -113,13 +130,14 @@ void RenderObject::processInput(SDL_Event e) {
         switch(e.key.keysym.sym) {
             case SDLK_RIGHT:
                 x++;
-                if(x == 600) {
+                if(x == 601) {
                     x = 0;
                 }
                 animate = true;
+                break;
             case SDLK_LEFT:
                 x--;
-                if(x == 0) {
+                if(x == -1) {
                     x = 600;
                 }
                 animate = true;

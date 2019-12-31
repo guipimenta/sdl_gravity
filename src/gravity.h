@@ -23,8 +23,8 @@ class RenderObject {
         int spriteSize;
         int imgNum = 0;
         int count = 0;
-        int x;
-        int y;
+        int x = 0;
+        int y = 0;
         bool animate;
 };
 
