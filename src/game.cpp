@@ -1,11 +1,13 @@
-#include <gravity.h>
-
+#include <objects.h>
+#include <window.h>
 
 
 int main( int argc, char* args[] ) {
-    GameWindow window( "Mega Man", 800, 600 );
+    GameWindow window( "Ninja Man", 800, 600 );
 
+    // Adding a simple object to the screen, it will create a basic render object
     window.addObject( "../resources/Run", 10, 363, 458 );
+
     SDL_Event e;
     bool quit = false;
     while(!quit) {
