@@ -19,8 +19,13 @@ class GameWindow {
         // adds a simple renderable object to screen
         void addObject( std::string path, int spriteSize, int width, int height );
 
-        void update(SDL_Event e);
+        // enables you to creater a custom object by extending the basic one
+        void addObject( RenderObject* object );
+
+        void update( SDL_Event e );
         
+        // returns window renderer
+        SDL_Renderer* getRenderer();
     private:
 
         // initialize game window

@@ -70,9 +70,6 @@ void RenderObject::render( int x, int y, SDL_Rect* clip ) {
     }
 
 
-    // printf("Loading clip %d\n", this->imgNum);
-
-
     // clip is related to the image source
     // renderQuad where the image will be loaded on the screen
     SDL_RenderCopy ( this->renderer, this->texture[this->imgNum], clip, &renderQuad );
@@ -85,6 +82,17 @@ SDL_Rect RenderObject::updateClip() {
 }
 
 void RenderObject::processInput(SDL_Event e) {
+    // nothing to do here
+}
+
+
+MovableObject::MovableObject( std::string path, int spriteSize, SDL_Renderer* renderer, int width, int height ) 
+: RenderObject( path, spriteSize, renderer, width, height )  {
+
+}
+
+
+void MovableObject::processInput(SDL_Event e) {
     if(e.type == SDL_KEYDOWN) {
         switch(e.key.keysym.sym) {
             case SDLK_RIGHT:
@@ -102,6 +110,5 @@ void RenderObject::processInput(SDL_Event e) {
                 animate = true;
             break;
         }
-        
     }
 }

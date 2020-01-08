@@ -28,6 +28,10 @@ void GameWindow::addObject( std::string path, int spriteSize, int width, int hei
     this->screenObjects.push_back(obj);
 }
 
+void GameWindow::addObject( RenderObject* object ) {
+    this->screenObjects.push_back( object );
+}
+
 void GameWindow::update(SDL_Event e) {
     SDL_RenderClear( this->renderer );
     for(int i = 0; i < this->screenObjects.size(); i++) {
@@ -38,4 +42,8 @@ void GameWindow::update(SDL_Event e) {
         obj->render( 0, 0, &clip );
         SDL_RenderPresent( this->renderer );
     }
+}
+
+SDL_Renderer* GameWindow::getRenderer() {
+    return this->renderer;
 }
